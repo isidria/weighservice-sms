@@ -230,14 +230,14 @@ In the PostgreSQL prompt, run:
 CREATE DATABASE weighservice_sms;
 
 -- Create user
-CREATE USER weighservice_user WITH PASSWORD 'your_secure_password_here';
+CREATE USER weighuser WITH PASSWORD 'your_secure_password_here';
 
 -- Grant privileges
-ALTER ROLE weighservice_user SET client_encoding TO 'utf8';
-ALTER ROLE weighservice_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE weighservice_user SET default_transaction_deferrable TO on;
-ALTER ROLE weighservice_user SET default_transaction_read_only TO off;
-GRANT ALL PRIVILEGES ON DATABASE weighservice_sms TO weighservice_user;
+ALTER ROLE weighuser SET client_encoding TO 'utf8';
+ALTER ROLE weighuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE weighuser SET default_transaction_deferrable TO on;
+ALTER ROLE weighuser SET default_transaction_read_only TO off;
+GRANT ALL PRIVILEGES ON DATABASE weighservice_sms TO weighuser;
 
 -- Exit PostgreSQL
 \q
@@ -246,7 +246,7 @@ GRANT ALL PRIVILEGES ON DATABASE weighservice_sms TO weighservice_user;
 ### Step 2: Verify Database Connection
 
 ```bash
-psql -h localhost -U weighservice_user -d weighservice_sms -c "SELECT version();"
+psql -h localhost -U weighuser -d weighservice_sms -c "SELECT version();"
 ```
 
 You'll be prompted for the password. If successful, you'll see the PostgreSQL version.
@@ -274,7 +274,7 @@ npm install
 ```bash
 cp .env.example .env
 ```
-
+v
 Edit `.env` with your VPS configuration:
 
 ```bash
@@ -293,7 +293,7 @@ API_URL=https://your-domain.com
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=weighservice_sms
-DB_USER=weighservice_user
+DB_USER=weighuser
 DB_PASSWORD=your_secure_password_here
 DB_SSL=false
 
@@ -783,7 +783,7 @@ pm2 logs weighservice-backend --err
 cat /home/weighservice/weighservice-sms/backend/.env
 
 # Test database connection manually
-psql -h localhost -U weighservice_user -d weighservice_sms -c "SELECT 1;"
+psql -h localhost -U weighuser -d weighservice_sms -c "SELECT 1;"
 ```
 
 ### Nginx Not Serving Frontend
@@ -816,7 +816,7 @@ curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" https://your-domain.
 sudo systemctl status postgresql
 
 # Verify credentials
-psql -h localhost -U weighservice_user -d weighservice_sms
+psql -h localhost -U weighuser -d weighservice_sms
 
 # Check database permissions
 sudo -u postgres psql -c "\dp weighservice_sms"
