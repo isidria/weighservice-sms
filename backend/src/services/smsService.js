@@ -9,13 +9,10 @@ export const sendMessage = async (toPhone, body, mediaUrls = []) => {
       from: twilioPhoneNumber,
       to: toPhone,
     };
-
     if (mediaUrls && mediaUrls.length > 0) {
       msgData.mediaUrl = mediaUrls;
     }
-
     const response = await twilioClient.messages.create(msgData);
-
     logger.info(`Message sent to ${toPhone}, SID: ${response.sid}`);
     return { success: true, sid: response.sid };
   } catch (error) {
@@ -27,21 +24,19 @@ export const sendMessage = async (toPhone, body, mediaUrls = []) => {
 export const handleIncomingMessage = async (data) => {
   try {
     const { From, To, Body, NumMedia, Media0UrL } = data;
-
     // Find or create conversation
     let conversation = await Conversation.findByPhone(From);
     if (!conversation) {
       // Try to find customer first
-      let customer = await require('../models/index.js').Customer.findByPhone(From);
+      let customer = await import('../models/index.js').then(mod => mod.Customer.findByPhone(From));
       if (!customer) {
-        customer = await require('../models/index.js').Customer.create({
+        customer = await import('../models/index.js').then(mod => mod.Customer.create({
           name: From,
           phone: From,
           email: null,
           company: 'Unknown',
-        });
+        }));
       }
-
       conversation = await Conversation.create({
         customer_id: customer.id,
         customer_phone: From,
@@ -50,7 +45,6 @@ export const handleIncomingMessage = async (data) => {
         status: 'open',
       });
     }
-
     // Store message
     const mediaUrls = NumMedia > 0 ? [Media0UrL] : [];
     const message = await Message.create({
@@ -63,13 +57,11 @@ export const handleIncomingMessage = async (data) => {
       message_type: NumMedia > 0 ? 'mms' : 'sms',
       status: 'received',
     });
-
     // Update conversation
     await Conversation.update(conversation.id, {
       status: 'open',
       updated_at: new Date(),
     });
-
     return { success: true, message, conversation };
   } catch (error) {
     logger.error(`Error handling incoming message: ${error.message}`);
